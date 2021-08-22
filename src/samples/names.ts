@@ -1,4 +1,4 @@
-const firstNames = [
+export const firstNamesSample = [
 'Ada',
 'Adam',
 'Addison',
@@ -104,7 +104,7 @@ const firstNames = [
 'Zoey',
 ]
 
-const lastNames = [
+export const secondNamesSample = [
 'Anderson',
 'Baker',
 'Brown',

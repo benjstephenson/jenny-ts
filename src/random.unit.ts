@@ -1,12 +1,25 @@
 import * as fc from 'fast-check'
-import { alphaNumChar, alphaNumStr, exclusive, inclusive, lowerChar, pick, pickMany, upperChar } from '.'
+import {assert} from 'fast-check'
+import {
+  alphaNumChar,
+  alphaNumStr,
+  arrayOf,
+  exclusive,
+  inclusive,
+  lowerChar,
+  pick,
+  pickMany,
+  upperChar
+} from '.'
+import {date} from './personal'
+import {Random} from './State'
 
 describe('next in range', () => {
   it('inclusive between two limits', () => {
     fc.assert(
       fc.property(fc.nat(), fc.nat(), fc.nat(), (a, b, c) => {
         const [low, high] = a < b ? [a, b] : [b, a]
-        const [_, result] = inclusive(low, high)(c)
+        const [_, result] = inclusive({min: low, max: high})(c)
 
         expect(result).toBeGreaterThanOrEqual(low)
         expect(result).toBeLessThanOrEqual(high)
@@ -18,7 +31,7 @@ describe('next in range', () => {
     fc.assert(
       fc.property(fc.nat(), fc.nat(), fc.nat(), (a, b, c) => {
         const [low, high] = a < b ? [a, b] : [b, a]
-        const [_, result] = exclusive(low, high)(c)
+        const [_, result] = exclusive({min: low, max: high})(c)
 
         expect(result).toBeGreaterThan(low)
         expect(result).toBeLessThan(high)
@@ -35,9 +48,9 @@ describe('next in range', () => {
     )
   })
 
-  it("picks one from array", () => {
+  it('picks one from array', () => {
     fc.assert(
-      fc.property(fc.array(fc.string(), {minLength: 1}), fc.nat(), (sample, seed) => {
+      fc.property(fc.array(fc.string(), { minLength: 1 }), fc.nat(), (sample, seed) => {
         const [_, result] = pick(sample)(seed)
         expect(sample.includes(result)).toBe(true)
       })
@@ -45,38 +58,67 @@ describe('next in range', () => {
   })
 
   it('picks a lowercase letter', () => {
-    fc.assert(fc.property(fc.nat(), (seed) => {
-      const [_, char] = lowerChar(seed)
-      const letter = /^[a-z]$/
-      expect(char.match(letter)).toBeTruthy()
-    }))
+    fc.assert(
+      fc.property(fc.nat(), (seed) => {
+        const [_, char] = lowerChar(seed)
+        const letter = /^[a-z]$/
+        expect(char.match(letter)).toBeTruthy()
+      })
+    )
   })
 
   it('picks an uppercase letter', () => {
-    fc.assert(fc.property(fc.nat(), (seed) => {
-      const [_, char] = upperChar(seed)
-      const letter = /^[A-Z]$/
-      expect(char.match(letter)).toBeTruthy()
-    }))
+    fc.assert(
+      fc.property(fc.nat(), (seed) => {
+        const [_, char] = upperChar(seed)
+        const letter = /^[A-Z]$/
+        expect(char.match(letter)).toBeTruthy()
+      })
+    )
   })
 
   it('picks an alphanum char', () => {
-    fc.assert(fc.property(fc.nat(), (seed) => {
-      const [_, char] = alphaNumChar(seed)
-      const letter = /^[aA-zZ]$/
-      expect(char.match(letter)).toBeTruthy()
-    }))
+    fc.assert(
+      fc.property(fc.nat(), (seed) => {
+        const [_, char] = alphaNumChar(seed)
+        const letter = /^[aA-zZ]$/
+        expect(char.match(letter)).toBeTruthy()
+      })
+    )
   })
 
   it('picks an alphanum string', () => {
-    fc.assert(fc.property(fc.nat(500), fc.nat(), (size, seed) => {
-      const [_, char] = alphaNumStr(size)(seed)
-      const letter = /^[aA-zZ]+$/
-      expect(char.length).toBe(size)
-      if (size > 0)
-        expect(char.match(letter)).toBeTruthy()
-      else
-        expect(char).toBe('')
+    fc.assert(
+      fc.property(fc.nat(500), fc.nat(), (size, seed) => {
+        const [_, char] = alphaNumStr(size)(seed)
+        const letter = /^[aA-zZ]+$/
+        expect(char.length).toBe(size)
+        if (size > 0) expect(char.match(letter)).toBeTruthy()
+        else expect(char).toBe('')
+      })
+    )
+  })
+
+  it('builds an array', () => {
+    fc.assert(
+      fc.property(fc.nat(500), fc.nat(), (size, seed) => {
+        const staticGen: Random<number> = (seed: number) => [seed, 1]
+
+        const [_, result] = arrayOf(size)(staticGen)(seed)
+        expect(result.length).toBe(size)
+        if (size > 0) {
+          const distinct = [...new Set(result)]
+          expect(distinct).toEqual([1])
+        }
+      })
+    )
+  })
+
+  it('builds a date', () => {
+    const now = Date.now().valueOf()
+    fc.assert(fc.property(fc.nat(), (seed) => {
+      const [_, result] = date({earliest: now, latest: now + 1})(seed)
+      expect([now, now + 1]).toContain(result.valueOf())
     }))
   })
 })

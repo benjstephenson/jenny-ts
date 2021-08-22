@@ -1,10 +1,4 @@
-type State<U, T> = (state: U) => [U, T]
-export type Random<T> = State<number, T>
-
-export const get =
-  <T>(state: Random<T>) =>
-  (seed: number) =>
-    state(seed)[1]
+import { chain, id, map, Random, withValue } from './State'
 
 const multiplier = 1839567234
 const modulus = 8239451023
@@ -18,59 +12,27 @@ export const getNextSeed: Random<number> = (seed) => {
   return [nextSeed, nextSeed]
 }
 
-const narrowToRange = (min: number, max: number) => (num: number) => min + Math.floor((num / modulus) * (max - min))
+const narrowToRange = ({min, max}: {min: number, max: number}) => (num: number) => min + Math.floor((num / modulus) * (max - min))
 
-const map: <A, B>(f: (a: A) => B) => (fa: Random<A>) => Random<B> = (f) => (generate) => (seed) => {
-  const [nextSeed, a] = generate(seed)
-  return [nextSeed, f(a)]
-}
+export const inclusive = ({min, max}: {min: number, max: number}) => map(narrowToRange({min, max}))(getNextSeed)
 
-const chain: <A, B>(f: (a: A) => Random<B>) => (ma: Random<A>) => Random<B> = (f) => (ma) => (s1) => {
-  const [s2, a] = ma(s1)
-  return f(a)(s2)
-}
+export const exclusive = ({min, max}: {min: number, max: number}): Random<number> => inclusive({min: min + 1, max: max - 1})
 
-const id = <T>(x: Random<T>) => x
-
-const withValue =
-  <T>(value: T): Random<T> =>
-  (seed: number) =>
-    [seed, value]
-
-export const inclusive = (min: number, max: number) => map(narrowToRange(min, max))(getNextSeed)
-
-export const exclusive = (min: number, max: number): Random<number> => inclusive(min + 1, max - 1)
-
-export const bool = map((n: number) => n < 1)(inclusive(0, 1))
+export const bool = map((n: number) => n < 1)(inclusive({min: 0, max: 1}))
 
 export const pick =
   <T>(sample: T[]): Random<T> =>
   (seed: number) => {
-    const [nextSeed, index] = map(narrowToRange(0, sample.length - 1))(getNextSeed)(seed)
+    const [nextSeed, index] = map(narrowToRange({min: 0, max: sample.length - 1}))(getNextSeed)(seed)
     return [nextSeed, sample[index]]
   }
 
-/*
-export const pickMany = <T>(sample: T[], size: number): Random<T[]> => {
-  const loop =
-    (list: T[]) =>
-    (seed: number): [number, T[]] => {
-      if (list.length === size) return [seed, list]
+export const lowerChar = map(String.fromCharCode)(inclusive({min: 97, max: 122}))
 
-      const [nextSeed, a] = pick(sample)(seed)
-      return loop([...list, a])(nextSeed)
-    }
-
-  return loop([])
-}
-*/
-
-export const lowerChar = map(String.fromCharCode)(inclusive(97, 122))
-
-export const upperChar = map(String.fromCharCode)(inclusive(65, 90))
+export const upperChar = map(String.fromCharCode)(inclusive({min: 65, max: 90}))
 
 export const alphaNumChar: Random<string> = chain(id)(
-  pick([lowerChar, upperChar, map(Number.toString)(inclusive(0, 9))])
+  pick([lowerChar, upperChar, map(Number.toString)(inclusive({min: 0, max: 9}))])
 )
 
 export const arrayOf =
