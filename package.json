@@ -1,0 +1,44 @@
+{
+  "name": "gen-ts",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Benji Stephenson",
+  "license": "MIT",
+  "scripts": {
+    "compile": "tsc -p .",
+    "test": "jest"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "globals": {
+      "ts-jest": {
+        "tsconfig": "tsconfig.json"
+      }
+    },
+    "transform": {
+      "^.+\\.(ts|tsx)$": "ts-jest"
+    },
+    "testMatch": [
+      "**/src/*.unit.+(ts|tsx|js)"
+    ]
+  },
+  "devDependencies": {
+    "@types/jest": "^27.0.1",
+    "fast-check": "^2.17.0",
+    "jest": "^27.0.6",
+    "ts-jest": "^27.0.5",
+    "typescript": "^4.3.5"
+  },
+  "peerDependencies": {
+    "fp-ts": "^2.11.1",
+    "monocle-ts": "^2.3.10",
+    "uuid": "^8.3.2"
+  },
+  "dependencies": {
+    "fp-ts": "^2.11.1"
+  }
+}
