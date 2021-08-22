@@ -1,5 +1,5 @@
 import * as fc from 'fast-check'
-import { exclusive, fromSample, inclusive } from '.'
+import { alphaNumChar, alphaNumStr, exclusive, inclusive, lowerChar, pick, pickMany, upperChar } from '.'
 
 describe('next in range', () => {
   it('inclusive between two limits', () => {
@@ -26,12 +26,57 @@ describe('next in range', () => {
     )
   })
 
-  it('builds an array', () => {
+  it('builds an array ', () => {
     fc.assert(
       fc.property(fc.array(fc.string()), fc.nat(100), fc.nat(), (sample, size, seed) => {
-        const [_, result] = fromSample(sample, size)(seed)
+        const [_, result] = pickMany(sample, size)(seed)
         expect(result.length).toBe(size)
       })
     )
+  })
+
+  it("picks one from array", () => {
+    fc.assert(
+      fc.property(fc.array(fc.string(), {minLength: 1}), fc.nat(), (sample, seed) => {
+        const [_, result] = pick(sample)(seed)
+        expect(sample.includes(result)).toBe(true)
+      })
+    )
+  })
+
+  it('picks a lowercase letter', () => {
+    fc.assert(fc.property(fc.nat(), (seed) => {
+      const [_, char] = lowerChar(seed)
+      const letter = /^[a-z]$/
+      expect(char.match(letter)).toBeTruthy()
+    }))
+  })
+
+  it('picks an uppercase letter', () => {
+    fc.assert(fc.property(fc.nat(), (seed) => {
+      const [_, char] = upperChar(seed)
+      const letter = /^[A-Z]$/
+      expect(char.match(letter)).toBeTruthy()
+    }))
+  })
+
+  it('picks an alphanum char', () => {
+    fc.assert(fc.property(fc.nat(), (seed) => {
+      const [_, char] = alphaNumChar(seed)
+      const letter = /^[aA-zZ]$/
+      expect(char.match(letter)).toBeTruthy()
+    }))
+  })
+
+  it('picks an alphanum string', () => {
+    fc.assert(fc.property(fc.nat(500), fc.nat(), (size, seed) => {
+      const [_, char] = alphaNumStr(size)(seed)
+      const letter = /^[aA-zZ]+$/
+      expect(char.length).toBe(size)
+      if (size > 0)
+        expect(char.match(letter)).toBeTruthy()
+      else
+        expect(char).toBe('')
+    }))
   })
 })
