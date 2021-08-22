@@ -29,7 +29,7 @@ describe('next in range', () => {
   it('builds an array ', () => {
     fc.assert(
       fc.property(fc.array(fc.string()), fc.nat(100), fc.nat(), (sample, size, seed) => {
-        const [_, result] = pickMany(sample, size)(seed)
+        const [_, result] = pickMany(size)(sample)(seed)
         expect(result.length).toBe(size)
       })
     )
