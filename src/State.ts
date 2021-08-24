@@ -23,3 +23,19 @@ export const chain: <A, B>(f: (a: A) => Random<B>) => (ma: Random<A>) => Random<
   return f(a)(nextSeed)
 }
 
+export const ap: <A, B>(fab: Random<(a: A) => B>, ma: Random<A>) => Random<B> = (fab, ma) => (seed: number) => {
+  const [s1, r1] = ma(seed)
+  const [s2, f] = fab(s1)
+  return [s2, f(r1)]
+}
+
+export const traverse: <A, B>(list: ReadonlyArray<Random<A>>) => (f: (a: A) => B) => Random<ReadonlyArray<B>> =
+  <A, B>(list: ReadonlyArray<Random<A>>) =>
+  (f: (a: A) => B) =>
+    list.reduce(
+      (acc, cur) => chain((accum_: ReadonlyArray<B>) => map((gen_: A) => [...accum_, f(gen_)])(cur))(acc),
+
+      withValue<B[]>([])
+    )
+
+export const sequence = <A>(list: ReadonlyArray<Random<A>>): Random<ReadonlyArray<A>> => traverse<A, A>(list)(x => x)

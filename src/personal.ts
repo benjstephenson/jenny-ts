@@ -1,7 +1,7 @@
 import { inclusive, pick, pickMany } from '.'
 import { domainsSample, emailProviderSample } from './samples/domains'
 import { firstNamesSample, secondNamesSample } from './samples/names'
-import { chain, map, Random, withValue } from './State'
+import { chain, map, Random, sequence, traverse } from './State'
 
 export const firstName = pick(firstNamesSample)
 
@@ -18,11 +18,13 @@ export const email = ({ name = pick(emailProviderSample) }: { name?: Random<stri
   const emailProvider = pick(emailProviderSample)
   const domain = pick(domainsSample)
 
-  const parts = [name, emailProvider, domain].reduce(
-    (accum, cur) => chain((accum_: string[]) => map((gen_: string) => accum_.concat(gen_))(cur))(accum),
-    withValue([] as string[])
-  )
+  const foo = sequence([name, emailProvider, domain])
 
-  // gross, a monadic sequence would be better
-  return map((p: string[]) => `${p[0]}@${[1]}.${p[2]}`)(parts)
+  const a = map((domain: string): [string] => [domain])(domain)
+  const b = chain((a: [string]) => map((email: string): [string, string] => [email, ...a])(emailProvider))(a)
+  const c = chain((b: [string, string]) => map((name: string): [string, string, string] => [name, ...b])(name))(b)
+
+
+  return map(([name, email, domain]: [string, string, string]) => `${name}@${email}.${domain}`)(c)
 }
+
