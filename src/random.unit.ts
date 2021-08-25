@@ -11,7 +11,7 @@ import {
   pickMany,
   upperChar
 } from '.'
-import {date} from './personal'
+import {date, emailAddress, record} from './personal'
 import {Random} from './State'
 
 describe('next in range', () => {
@@ -120,5 +120,17 @@ describe('next in range', () => {
       const [_, result] = date({earliest: now, latest: now + 1})(seed)
       expect([now, now + 1]).toContain(result.valueOf())
     }))
+  })
+
+  it('builds an email', () => {
+
+    const [_, email] = emailAddress({})(20)
+    console.log(email)
+
+  })
+
+  fit('builds a record', () => {
+    const [_, result] = record(20)
+    console.log(JSON.stringify(result))
   })
 })

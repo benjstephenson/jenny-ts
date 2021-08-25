@@ -1,4 +1,5 @@
-import { chain, id, map, Random, withValue } from './State'
+import {pipe} from './functions'
+import {chain, id, map, Random, withValue} from './State'
 
 const multiplier = 1839567234
 const modulus = 8239451023
@@ -12,7 +13,7 @@ export const getNextSeed: Random<number> = (seed) => {
   return [nextSeed, nextSeed]
 }
 
-const narrowToRange = ({min, max}: {min: number, max: number}) => (num: number) => min + Math.floor((num / modulus) * (max - min))
+const narrowToRange: ({min, max}: {min: number, max: number}) => (num: number) => number = ({min, max}) => num => min + Math.floor((num / modulus) * (max - min))
 
 export const inclusive = ({min, max}: {min: number, max: number}) => map(narrowToRange({min, max}))(getNextSeed)
 
@@ -26,6 +27,11 @@ export const pick =
     const [nextSeed, index] = map(narrowToRange({min: 0, max: sample.length - 1}))(getNextSeed)(seed)
     return [nextSeed, sample[index]]
   }
+
+export const lowerChar2 = pipe(
+  inclusive({min: 97, max: 122}),
+  map(String.fromCharCode)
+)
 
 export const lowerChar = map(String.fromCharCode)(inclusive({min: 97, max: 122}))
 
@@ -44,8 +50,17 @@ export const arrayOf =
     }
 
     return items.reduce(
-      (accum, cur) => chain((accum_: T[]) => map((gen_: T) => accum_.concat(gen_))(cur))(accum),
-      withValue([] as T[])
+      (accum, cur) => 
+        pipe(
+          accum,
+          chain((accum_) =>
+            pipe(
+              cur,
+              map((gen) => [...accum_, gen])
+            )
+          )
+        ),
+      withValue<T[]>([])
     )
   }
 
