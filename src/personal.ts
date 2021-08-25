@@ -15,7 +15,7 @@ export const secondNames = (count: number = 2) => pickMany(count)(secondNamesSam
 export const date = ({ earliest = 0, latest = Date.now().valueOf() }: { earliest?: number; latest?: number }) =>
   map((n: number) => new Date(n))(inclusive({ min: Math.abs(earliest), max: Math.abs(latest) }))
 
-export const emailAddress = ({ name = pick(emailProviderSample) }: { name?: Random<string> }) => {
+export const emailAddress = ({ name = pick(emailProviderSample) }: { name?: Random<string> } = {}) => {
   const emailProvider = pick(emailProviderSample)
   const domain = pick(domainsSample)
 
