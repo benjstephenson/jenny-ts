@@ -1,9 +1,18 @@
 {
   "name": "jenny-ts",
   "version": "0.0.1",
-  "main": "index.js",
   "author": "Benji Stephenson",
-  "license": "MIT",
+  "license": "GPLv3",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benjstephenson/jenny-ts.git"
+  },
+  "homepage": "https://github.com/benjstephenson/jenny-ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "engines": {
+    "node": ">=10.13.0"
+  },
   "scripts": {
     "build": "tsc -p .",
     "test": "jest"
@@ -30,9 +39,9 @@
     "@types/jest": "^27.0.1",
     "fast-check": "^2.17.0",
     "jest": "^27.0.6",
+    "rimraf": "^3.0.2",
     "ts-jest": "^27.0.5",
     "typescript": "^4.3.5"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }

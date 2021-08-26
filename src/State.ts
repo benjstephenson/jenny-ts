@@ -5,7 +5,7 @@ export type Random<T> = State<number, T>
 
 export const id = <T>(x: Random<T>) => x
 
-export const withValue =
+export const of =
   <T>(value: T): Random<T> =>
   (seed: number) =>
     [seed, value]
@@ -55,7 +55,7 @@ export const traverse: <A, B>(list: ReadonlyArray<Random<A>>) => (f: (a: A) => B
             lift2((a, b) => [...b, f(a)])
           )
         ),
-      withValue<B[]>([])
+      of<B[]>([])
     )
   }
 
@@ -80,7 +80,7 @@ export function sequenceT<A>(...list: Array<Random<A>>) {
               lift2((a, b) => tuple(a, ...b))
             )
           ),
-        withValue(fa as any)
+        of(fa as any)
       )
     })
   )
@@ -105,15 +105,14 @@ export function sequenceR<A>(r: Record<string, Random<A>>) {
       const fa = pipe({}, recordBuilder(headK, headV_))
 
       return tail.reduce((acc, [currK, currV]) => {
-        const p = (r: Record<string, any>) => pipe(
-          currV,
-          map((value) => recordBuilder(currK, value)(r))
-        )
+        const p = (r: Record<string, any>) =>
+          pipe(
+            currV,
+            map((value) => recordBuilder(currK, value)(r))
+          )
 
-        return chain(
-          (acc_: Record<string, any>) => p(acc_)
-        )(acc)
-      }, withValue(fa))
+        return chain((acc_: Record<string, any>) => p(acc_))(acc)
+      }, of(fa))
     })
   )
 }

@@ -1,6 +1,6 @@
 import * as fc from 'fast-check'
-import { alphaNumChar, alphaNumStr, arrayOf, exclusive, inclusive, lowerChar, pick, pickMany, upperChar } from '.'
-import { date, emailAddress, record } from './personal'
+import { date, alphaNumChar, alphaNumStr, arrayOf, exclusive, inclusive, lowerChar, pick, pickMany, upperChar } from './core'
+import { emailAddress, record } from './personal'
 import { Random } from './State'
 
 describe('next in range', () => {
