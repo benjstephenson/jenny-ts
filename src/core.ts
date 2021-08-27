@@ -25,7 +25,7 @@ export const exclusive = ({ min, max }: { min: number; max: number }): Random<nu
 
 export const bool = map((n: number) => n < 1)(inclusive({ min: 0, max: 1 }))
 
-export const date = ({ earliest = 0, latest = Date.now().valueOf() }: { earliest?: number; latest?: number }) =>
+export const date = ({ earliest = 0, latest = Date.now().valueOf() }: { earliest?: number; latest?: number } = {}) =>
   map((n: number) => new Date(n))(inclusive({ min: Math.abs(earliest), max: Math.abs(latest) }))
 
 export const lowerChar = map(String.fromCharCode)(inclusive({ min: 97, max: 122 }))

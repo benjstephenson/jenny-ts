@@ -35,6 +35,8 @@ import {
   lift2
 } from './State'
 
+import * as personal from './personal'
+
 export {
 
   tuple,
@@ -65,5 +67,7 @@ export {
   pick,
   pickMany,
   arrayOf,
-  generate
+  generate,
+
+  personal
 }

@@ -1,4 +1,6 @@
 .github
 **.unit.*
+.prettierrc
 src
+tsconfig.json
 tsconfig.tsbuildinfo
