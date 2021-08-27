@@ -2,7 +2,7 @@
   "name": "jenny-ts",
   "version": "0.0.1",
   "author": "Benji Stephenson",
-  "license": "GPLv3",
+  "license": "GPL-3.0-or-later",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/benjstephenson/jenny-ts.git"

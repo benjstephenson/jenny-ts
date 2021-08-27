@@ -3,14 +3,12 @@ import { identity, pipe, tuple } from './functions'
 export type State<U, T> = (state: U) => [U, T]
 export type Random<T> = State<number, T>
 
-export const id = <T>(x: Random<T>) => x
-
 export const of =
   <T>(value: T): Random<T> =>
   (seed: number) =>
     [seed, value]
 
-export const get =
+export const run =
   <T>(state: Random<T>) =>
   (seed: number) =>
     state(seed)[1]
@@ -77,7 +75,7 @@ export function sequenceT<A>(...list: Array<Random<A>>) {
             acc,
             pipe(
               cur,
-              lift2((a, b) => tuple(a, ...b))
+              lift2((a, b) => tuple(...b, a))
             )
           ),
         of(fa as any)

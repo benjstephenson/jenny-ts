@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": ".",
+    "rootDir": "./src",
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "es6",
@@ -18,8 +18,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "composite": true,
-    "declaration": true,
-    "declarationMap": true
+    "declaration": true
   },
   "include": ["./src"]
 }

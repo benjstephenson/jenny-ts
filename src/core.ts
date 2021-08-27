@@ -1,5 +1,5 @@
-import { pipe } from './functions'
-import { chain, id, map, Random, of } from './State'
+import { pipe, identity } from './functions'
+import { chain, map, Random, of, run, sequenceT } from './State'
 
 const multiplier = 1839567234
 const modulus = 8239451023
@@ -65,11 +65,23 @@ export const pick =
     return [nextSeed, sample[index]]
   }
 
-export const alphaNumChar: Random<string> = chain(id)(
-  pick([lowerChar, upperChar, map(Number.toString)(inclusive({ min: 0, max: 9 }))])
+export const alphaNumChar: Random<string> = pipe(
+  pick([lowerChar, upperChar, map(Number.toString)(inclusive({ min: 0, max: 9 }))]),
+  chain(identity)
 )
 
 export const pickMany =
   (size: number) =>
   <T>(sample: T[]) =>
     arrayOf(size)(pick(sample))
+
+
+export const tupleOf = sequenceT
+
+export const generateOne: (seed?: number) => <T>(generator: Random<T>) => T = (seed = 358) => generator => pipe(seed, pipe(generator, run))
+
+export const generate: ({ seed, size }: { seed: number; size: number }) => <T>(generator: Random<T>) => T[] =
+  ({ seed, size = 1 }) =>
+  (generator) => {
+    return pipe(seed, pipe(arrayOf(size)(generator), run))
+  }

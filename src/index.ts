@@ -11,7 +11,8 @@ import {
   date,
   pick,
   pickMany,
-  arrayOf
+  arrayOf,
+  generate
 } from './core'
 
 import {
@@ -22,9 +23,8 @@ import {
 
 import {
   Random,
-  id,
   of,
-  get,
+  run,
   map,
   chain,
   traverse,
@@ -42,9 +42,8 @@ export {
   pipe,
 
   Random,
-  id,
   of,
-  get,
+  run,
   map,
   chain,
   traverse,
@@ -65,5 +64,6 @@ export {
   date,
   pick,
   pickMany,
-  arrayOf
+  arrayOf,
+  generate
 }

@@ -1,36 +1,45 @@
 import * as fc from 'fast-check'
-import { date, alphaNumChar, alphaNumStr, arrayOf, exclusive, inclusive, lowerChar, pick, pickMany, upperChar } from './core'
+import {
+  alphaNumChar,
+  alphaNumStr,
+  arrayOf,
+  bool,
+  date,
+  exclusive,
+  generate,
+  generateOne,
+  inclusive,
+  lowerChar,
+  pick,
+  pickMany,
+  tupleOf,
+  upperChar
+} from './core'
 import { emailAddress, record } from './personal'
 import { Random } from './State'
 
 describe('next in range', () => {
   it('inclusive between two limits', () => {
     fc.assert(
-      fc.property(
-        fc.nat(), fc.nat(), fc.nat(),
-        (low, high, seed) => {
-          fc.pre(low <= high)
-          const [_, result] = inclusive({ min: low, max: high })(seed)
+      fc.property(fc.nat(), fc.nat(), fc.nat(), (low, high, seed) => {
+        fc.pre(low <= high)
+        const [_, result] = inclusive({ min: low, max: high })(seed)
 
-          expect(result).toBeGreaterThanOrEqual(low)
-          expect(result).toBeLessThanOrEqual(high)
-        }
-      )
+        expect(result).toBeGreaterThanOrEqual(low)
+        expect(result).toBeLessThanOrEqual(high)
+      })
     )
   })
 
   it('exclusive between two limits', () => {
     fc.assert(
-      fc.property(
-        fc.nat(), fc.nat(), fc.nat(),
-        (low, high, seed) => {
-          fc.pre(low < high - 1)
-          const [_, result] = exclusive({ min: low, max: high })(seed)
+      fc.property(fc.nat(), fc.nat(), fc.nat(), (low, high, seed) => {
+        fc.pre(low < high - 1)
+        const [_, result] = exclusive({ min: low, max: high })(seed)
 
-          expect(result).toBeGreaterThan(low)
-          expect(result).toBeLessThan(high)
-        }
-      )
+        expect(result).toBeGreaterThan(low)
+        expect(result).toBeLessThan(high)
+      })
     )
   })
 
@@ -109,6 +118,15 @@ describe('next in range', () => {
     )
   })
 
+  it('builds a complex array', () => {
+    fc.assert(
+      fc.property(fc.nat(500), fc.nat(), (size, seed) => {
+        const [_, result] = arrayOf(size)(record)(seed)
+        expect(result.length).toBe(size)
+      })
+    )
+  })
+
   it('builds a date', () => {
     const now = Date.now().valueOf()
     fc.assert(
@@ -125,7 +143,23 @@ describe('next in range', () => {
   })
 
   it('builds a record', () => {
-    const [_, result] = record(20)
-    console.log(JSON.stringify(result))
+    const [result] = generate({ seed: 20, size: 1 })(record)
+    expect(typeof result.name).toBe('string')
+    expect(result.birthday instanceof Date).toBe(true)
+  })
+
+  it('builds an arbitrary tuple', () => {
+    fc.assert(
+      fc.property(fc.nat(), (seed) => {
+        const gen = tupleOf(inclusive({ min: 0, max: 100 }), bool, lowerChar)
+        const r = generateOne(seed)(gen)
+        const [i, b, c] = r
+        console.log(r)
+        expect(i).toBeLessThan(100)
+        expect(i).toBeGreaterThan(0)
+        expect([true, false]).toContain(b)
+        expect(c.match(/^[a-z]$/)).toBeTruthy()
+      })
+    )
   })
 })
