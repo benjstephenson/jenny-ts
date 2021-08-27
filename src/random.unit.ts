@@ -152,11 +152,10 @@ describe('next in range', () => {
     fc.assert(
       fc.property(fc.nat(), (seed) => {
         const gen = tupleOf(inclusive({ min: 0, max: 100 }), bool, lowerChar)
-        const r = generateOne(seed)(gen)
-        const [i, b, c] = r
-        console.log(r)
-        expect(i).toBeLessThan(100)
-        expect(i).toBeGreaterThan(0)
+        const [i, b, c] = generateOne(seed)(gen)
+
+        expect(i).toBeLessThanOrEqual(100)
+        expect(i).toBeGreaterThanOrEqual(0)
         expect([true, false]).toContain(b)
         expect(c.match(/^[a-z]$/)).toBeTruthy()
       })
